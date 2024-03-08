@@ -2,6 +2,9 @@
   "name": "personal-website",
   "private": true,
   "version": "0.0.0",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,10 +13,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/fiber": "^8.15.16",
+    "@types/three": "^0.161.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "three": "^0.161.0"
   },
   "devDependencies": {
+    "@types/node": "^20.11.16",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
@@ -23,6 +30,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-tsconfig-paths": "^4.3.1"
   }
 }
