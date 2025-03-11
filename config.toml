@@ -1,0 +1,39 @@
+# The URL the site will be built for
+base_url = "https://robertlandlord.com"
+
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
+
+# Whether to build a search index to be used later on by a JavaScript library
+build_search_index = true
+
+theme = "duckquill"
+
+# Set the default language
+default_language = "en"
+
+[languages]
+[languages.en]
+title = "Robert Landlord"
+
+[markdown]
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
+highlight_code = true
+
+[extra]
+# Theme customization
+accent_color = "#51c516"  # Color for light theme
+accent_color_dark = "#327a0e"  # Color for dark theme
+default_theme = "system"  # Options: "light", "dark", or "system"
+
+# Navigation configuration
+[extra.nav]
+show_theme_switcher = true  # Enable the theme switcher
+links = [
+    { url = "/", name = "Home" },
+    { url = "/about/", name = "About" },
+    { url = "/notes", name = "Notes" },
+    { url = "/hobbies", name = "Hobbies" },
+    { url = "/journal", name = "Journal" }
+]

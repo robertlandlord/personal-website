@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- set date_format = macros_translate::translate(key="date_format", default="%B %d, %Y", language_strings=language_strings) -%}
+{%- set date_locale = macros_translate::translate(key="date_locale", default="en_US", language_strings=language_strings) -%}
+
+<div class="protected-content">
+    <div id="password-form">
+        <h1>{% if page %}{{ page.title }}{% else %}{{ section.title }}{% endif %}</h1>
+        <div class="password-input-container">
+            <input type="password" id="content-password" placeholder="Enter password to reveal content">
+            <button id="unlock-button">Unlock</button>
+        </div>
+        <p id="error-message" style="color: red; display: none;">Incorrect password</p>
+    </div>
+    
+    <div class="protected-wrapper">
+        <div id="journal-content" class="blurred">
+            {% if page %}
+                {# Single page content #}
+                {{ page.content | safe }}
+            {% else %}
+                {# Section content with article list #}
+                <div class="section-content">
+                    <h1>{{ section.title }}</h1>
+                    
+                    {{ section.content | safe }}
+
+                    {%- if paginator.pages -%}
+                        {%- set pages = paginator.pages -%}
+                        {%- set number_of_posts = paginator.total_pages -%}
+                    {%- elif section.pages -%}
+                        {%- set pages = section.pages -%}
+                        {%- set number_of_posts = section.pages | length -%}
+                    {%- endif -%}
+
+                    {% if pages %}
+                        <p>
+                            <small>
+                                {%- if config.taxonomies | length > 0 -%}
+                                    <a href="{{ get_url(path='tags', lang=lang) }}" class="protected-link">
+                                        {{ macros_translate::translate(key="filter_by_tag", default="Filter by tag", language_strings=language_strings) }}
+                                    </a>
+                                    <br />
+                                {%- endif %}
+                                {{ macros_translate::translate(key="posts", number=number_of_posts, default="$NUMBER posts in total", language_strings=language_strings) }}
+                            </small>
+                        </p>
+
+                        {% include "partials/articles.html" %}
+
+                        {%- if paginator.pages -%}
+                            <nav id="paginator">
+                                {%- if paginator.first != current_url -%}
+                                    <a id="paginator-first" href="{{ paginator.first }}" class="protected-link" title="{{ macros_translate::translate(key='first', default='First', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </a>
+                                {% else %}
+                                    <span id="paginator-first" title="{{ macros_translate::translate(key='first', default='First', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </span>
+                                {%- endif -%}
+
+                                {%- if paginator.previous -%}
+                                    <a id="paginator-previous" href="{{ paginator.previous }}" class="protected-link" title="{{ macros_translate::translate(key='previous', default='Previous', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </a>
+                                {% else %}
+                                    <span id="paginator-previous" title="{{ macros_translate::translate(key='previous', default='Previous', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </span>
+                                {%- endif -%}
+
+                                <span id="paginator-counter">{{ paginator.current_index }}/{{ paginator.number_pagers }}</span>
+
+                                {%- if paginator.next -%}
+                                    <a id="paginator-next" href="{{ paginator.next }}" class="protected-link" title="{{ macros_translate::translate(key='next', default='Next', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </a>
+                                {%- else -%}
+                                    <span id="paginator-next" title="{{ macros_translate::translate(key='next', default='Next', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </span>
+                                {%- endif -%}
+
+                                {%- if paginator.last != current_url -%}
+                                    <a id="paginator-last" href="{{ paginator.last }}" class="protected-link" title="{{ macros_translate::translate(key='last', default='Last', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </a>
+                                {% else %}
+                                    <span id="paginator-last" title="{{ macros_translate::translate(key='last', default='Last', language_strings=language_strings) }}">
+                                        <i class="icon"></i>
+                                    </span>
+                                {%- endif -%}
+                            </nav>
+                        {%- endif -%}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+const correctPassword = "bobby2025"; // Change this to your desired password
+const AUTH_KEY = 'journal_auth';
+const AUTH_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+function isAuthenticated() {
+    const auth = sessionStorage.getItem(AUTH_KEY);
+    if (!auth) return false;
+    
+    const { timestamp } = JSON.parse(auth);
+    const now = new Date().getTime();
+    
+    // Check if the authentication has expired
+    if (now - timestamp > AUTH_TIMEOUT) {
+        sessionStorage.removeItem(AUTH_KEY);
+        return false;
+    }
+    
+    return true;
+}
+
+function setAuthenticated() {
+    const auth = {
+        timestamp: new Date().getTime()
+    };
+    sessionStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+}
+
+function handleUnlock() {
+    const password = document.getElementById('content-password').value;
+    
+    if (password === correctPassword) {
+        document.getElementById('journal-content').classList.remove('blurred');
+        document.getElementById('password-form').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('password-form').style.display = 'none';
+        }, 300);
+        document.getElementById('error-message').style.display = 'none';
+        
+        setAuthenticated();
+    } else {
+        document.getElementById('error-message').style.display = 'block';
+    }
+}
+
+// Handle protected links only
+document.addEventListener('click', function(e) {
+    const protectedLink = e.target.closest('.protected-link');
+    if (protectedLink && !isAuthenticated()) {
+        e.preventDefault();
+        document.getElementById('error-message').textContent = 'Please enter the password first';
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('content-password').focus();
+    }
+});
+
+document.getElementById('unlock-button').addEventListener('click', handleUnlock);
+
+// Allow Enter key to trigger unlock
+document.getElementById('content-password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        handleUnlock();
+    }
+});
+
+// Check initial auth state
+if (isAuthenticated()) {
+    document.getElementById('journal-content').classList.remove('blurred');
+    document.getElementById('password-form').style.display = 'none';
+}
+</script>
+
+<style>
+.protected-content {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    position: relative;
+}
+
+#password-form {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 1rem;
+    margin: -1rem -1rem 1rem -1rem;
+    z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+.password-input-container {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+#content-password {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1;
+}
+
+#unlock-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#unlock-button:hover {
+    opacity: 0.9;
+}
+
+.protected-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.blurred {
+    filter: blur(8px);
+}
+
+.blurred .protected-link {
+    pointer-events: none;
+}
+
+/* Prevent selection of blurred text */
+.blurred ::selection {
+    background: transparent;
+}
+
+.section-content {
+    width: 100%;
+}
+</style>
+{% endblock content %} 
