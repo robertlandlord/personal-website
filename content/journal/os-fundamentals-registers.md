@@ -1,5 +1,5 @@
 +++
-title = "[OS Dev] Registers"
+title = "[OS Dev] Fundamentals - Registers"
 date = 2026-01-03
 +++
 
