@@ -25,10 +25,7 @@ jobs:
       - name: Setup Zola
         uses: getzola/zola@v0.19.2
         with:
-          version: 0.19.2
-      
-      - name: Build
-        run: zola build
+          args: build
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
