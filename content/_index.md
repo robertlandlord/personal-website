@@ -17,6 +17,6 @@ title = "Home"
 
 # Robert Landlord
 
-<p>Hello! Welcome to my site - a place where I (hope to) put all the little things I think about day-to-day. I hope you enjoy your stay!</p>
+<p>Welcome to this site where I put whatever I want. Full disclosure, you will probably learn nothing here.</p>
 </div>
 

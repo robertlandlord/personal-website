@@ -1,5 +1,5 @@
 +++
-title = "My First Hobby Post"
+title = "Euro Nymphing 101"
 date = 2024-03-19
 +++
 
